@@ -63,6 +63,9 @@ export const window = {
     dispose: jest.fn(),
   })),
   showTextDocument: jest.fn(),
+  showInputBox: jest.fn(),
+  showWarningMessage: jest.fn(),
+  showErrorMessage: jest.fn(),
 };
 
 export const workspace = {

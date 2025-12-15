@@ -33,6 +33,12 @@
         "title": "New Note",
         "category": "devBoard",
         "icon": "$(plus)"
+      },
+      {
+        "command": "devboard.notes.delete",
+        "title": "Delete Note",
+        "category": "devBoard",
+        "icon": "$(trash)"
       }
     ],
     "viewsContainers": {
@@ -48,18 +54,15 @@
       "devBoard": [
         {
           "id": "todoView",
-          "name": "Todo",
-          "icon": "none"
+          "name": "Todo"
         },
         {
           "id": "notesView",
-          "name": "Notes",
-          "icon": "none"
+          "name": "Notes"
         },
         {
           "id": "tasksView",
-          "name": "Tasks",
-          "icon": "none"
+          "name": "Tasks"
         }
       ]
     },
@@ -79,6 +82,13 @@
           "command": "devboard.notes.add",
           "when": "view == notesView",
           "group": "navigation@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "devboard.notes.delete",
+          "when": "view == notesView && viewItem == devboard.note",
+          "group": "inline"
         }
       ]
     }

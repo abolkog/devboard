@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { NotesProvider } from './notesProvider';
 import { VIEW_IDS } from '../../constants';
-import { NotesManager } from './notesManager';
+import { NoteItem } from './noteItem';
+import { handleAddNewNoteCommand, handleDeleteNoteCommand } from './notesCommandsHandler';
 
 export function registerNotesView(context: vscode.ExtensionContext) {
   const provider = new NotesProvider();
@@ -21,23 +22,10 @@ export function registerNotesView(context: vscode.ExtensionContext) {
       await provider.refresh(true);
     }),
     vscode.commands.registerCommand('devboard.notes.add', async () => {
-      handleAddNewNoteCommand(provider);
+      await handleAddNewNoteCommand(provider);
+    }),
+    vscode.commands.registerCommand('devboard.notes.delete', async (item: NoteItem) => {
+      await handleDeleteNoteCommand(provider, item);
     }),
   );
-}
-
-async function handleAddNewNoteCommand(provider: NotesProvider) {
-  const title = await vscode.window.showInputBox({
-    prompt: 'New note title',
-    placeHolder: 'e.g. Release plan',
-    validateInput: v => (!v || !v.trim() ? 'Title is required' : undefined),
-  });
-
-  if (!title) {
-    return;
-  }
-
-  const mgr = NotesManager.getInstance();
-  mgr.createNote(title);
-  await provider.refresh(true);
 }

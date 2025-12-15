@@ -109,6 +109,32 @@ describe('NotesManager', () => {
     });
   });
 
+  describe('deleteNote', () => {
+    it('delete the note', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      notesManager.deleteNote('full/file/path/old_note.md');
+
+      expect(fs.unlinkSync).toHaveBeenCalledWith('full/file/path/old_note.md');
+    });
+
+    it('should sanitize note title', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      await notesManager.createNote('My/Note:Title*');
+
+      expect(fs.writeFileSync).toHaveBeenCalledWith(`${mockNotesDir}/MyNoteTitle.md`, '# My/Note:Title*\n\n');
+    });
+
+    it('should not overwrite existing note', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+
+      await notesManager.createNote('Existing Note');
+
+      expect(fs.writeFileSync).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getNotesDir', () => {
     it('should return notes directory path', () => {
       expect(notesManager.getNotesDir()).toBe(mockNotesDir);

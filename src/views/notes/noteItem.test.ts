@@ -12,6 +12,11 @@ describe('NoteItem', () => {
     expect(item.label).toBe('meeting notes');
   });
 
+  it('sets contextValue', () => {
+    const item = new NoteItem(base);
+    expect(item.contextValue).toBe('devboard.note');
+  });
+
   it('uses file icon for the note', () => {
     const item = new NoteItem(base);
     const icon = item.iconPath as vscode.ThemeIcon;

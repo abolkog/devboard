@@ -59,6 +59,10 @@ export class NotesManager {
     await this.openNote(filePath);
   }
 
+  deleteNote(filePath: string) {
+    fs.unlinkSync(filePath);
+  }
+
   getNotesDir(): string {
     return this.notesDir;
   }

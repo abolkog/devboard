@@ -1,5 +1,8 @@
 # DevBoard
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/abolkog/devboard)
+![](https://img.shields.io/github/license/abolkog/devboard.svg)
+
 A developer-focused VS Code extension that brings together **tasks**, **notes**, and a **TODO/FIXME code tree** — all in one clean workspace panel.
 
 DevBoard helps you stay organized without leaving your editor.
@@ -34,39 +37,21 @@ A single panel that contains three tabs:
 
 ---
 
-## 🧰 How It Works
-
-DevBoard has two major components:
-
-### **Webview Panel**
-
-Contains the Checklist, Notes, and Tree tabs.  
-It communicates with the extension backend through VS Code’s messaging API.
-
-### **Tree Provider**
-
-A native VS Code TreeView that powers the TODO/FIXME explorer.
-
-Everything stays in sync automatically.
-
-## 📁 Project Structure
-
-media/ # Webview UI (HTML/CSS/JS)
-src/
-panel/ # Webview panel controller
-tree/ # TODO/FIXME Tree provider
-storage/ # Persistent data mgmt
-utils/ # Helper utilities
-
 ## 🚀 Getting Started (Development)
 
 ### 1. Install dependencies
 
-### 2. Run the extension in VS Code
+### 2. Run watch
+
+```
+npm run watch
+```
+
+### 3. Run the extension in VS Code
 
 Press **F5** to launch the VS Code Extension Host.
 
-### 3. Build (optional)
+---
 
 ## 🧩 Commands
 
@@ -77,34 +62,24 @@ Press **F5** to launch the VS Code Extension Host.
 | **DevBoard: Clear Checklist** | Clears all tasks                  |
 | **DevBoard: Clear Notes**     | Clears all notes                  |
 
+---
+
 ## 🔧 Settings (Optional)
 
 You can add user preferences like:
 
 ```
 "devboard.scanPattern": ["TODO", "FIXME"],
-"devboard.autoSave": true,
-"devboard.defaultTab": "notes"
 ```
-
-## 🛠 Tech Stack
-
-- **VS Code Webview API**
-- **TreeDataProvider**
-- **TypeScript**
-- **Lightweight JSON storage**
-
-## 📌 Roadmap
-
-- Markdown mode for Notes
-- Custom TODO keywords
-- Cloud sync support
-- Snippet drawer
-- Workspace-specific boards
 
 ---
 
-y
+## 🛠 Tech Stack
+
+- **TreeDataProvider**
+- **TypeScript**
+
+---
 
 ## 🤝 Contributing
 
