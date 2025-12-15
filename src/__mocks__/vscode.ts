@@ -62,6 +62,7 @@ export const window = {
     onDidChangeVisibility: jest.fn(),
     dispose: jest.fn(),
   })),
+  showTextDocument: jest.fn(),
 };
 
 export const workspace = {
@@ -73,6 +74,7 @@ export const workspace = {
     onDidDelete: jest.fn(),
     dispose: jest.fn(),
   })),
+  openTextDocument: jest.fn(),
 };
 
 export const commands = {

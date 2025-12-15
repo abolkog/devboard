@@ -13,7 +13,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
@@ -21,6 +21,18 @@
         "title": "Refresh Todos",
         "category": "devBoard",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "devboard.notes.refresh",
+        "title": "Refresh Notes",
+        "category": "devBoard",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devboard.notes.add",
+        "title": "New Note",
+        "category": "devBoard",
+        "icon": "$(plus)"
       }
     ],
     "viewsContainers": {
@@ -36,15 +48,18 @@
       "devBoard": [
         {
           "id": "todoView",
-          "name": "Todo"
+          "name": "Todo",
+          "icon": "none"
         },
         {
           "id": "notesView",
-          "name": "Notes"
+          "name": "Notes",
+          "icon": "none"
         },
         {
           "id": "tasksView",
-          "name": "Tasks"
+          "name": "Tasks",
+          "icon": "none"
         }
       ]
     },
@@ -53,6 +68,16 @@
         {
           "command": "devboard.todo.refresh",
           "when": "view == todoView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devboard.notes.refresh",
+          "when": "view == notesView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "devboard.notes.add",
+          "when": "view == notesView",
           "group": "navigation@1"
         }
       ]

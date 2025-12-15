@@ -13,7 +13,7 @@
       },
       "group": {
         "kind": "build",
-        "isDefault": true
+        "isDefault": false
       }
     },
     {
@@ -21,13 +21,13 @@
       "type": "shell",
       "command": "source ~/.nvm/nvm.sh && nvm use && npm run watch",
       "problemMatcher": "$tsc-watch",
-      "isBackground": true,
+      "isBackground": false,
       "presentation": {
         "reveal": "never"
       },
       "group": {
         "kind": "build",
-        "isDefault": true
+        "isDefault": false
       }
     }
   ]
