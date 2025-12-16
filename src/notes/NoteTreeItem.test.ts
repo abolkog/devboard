@@ -1,30 +1,30 @@
 import * as vscode from 'vscode';
-import { NoteItem } from './noteItem';
+import { NoteTreeItem } from './NoteTreeItem';
 
-describe('NoteItem', () => {
+describe('NoteTreeItem', () => {
   const base: Note = {
     name: 'meeting notes',
     path: '/path/to/file.ts',
   };
 
   it('sets label', () => {
-    const item = new NoteItem(base);
+    const item = new NoteTreeItem(base);
     expect(item.label).toBe('meeting notes');
   });
 
   it('sets contextValue', () => {
-    const item = new NoteItem(base);
+    const item = new NoteTreeItem(base);
     expect(item.contextValue).toBe('devboard.note');
   });
 
   it('uses file icon for the note', () => {
-    const item = new NoteItem(base);
+    const item = new NoteTreeItem(base);
     const icon = item.iconPath as vscode.ThemeIcon;
     expect(icon.id).toBe('file');
   });
 
   it('opens the file using the path', () => {
-    const item = new NoteItem(base);
+    const item = new NoteTreeItem(base);
     const [uriArg] = item.command?.arguments ?? [];
     expect(uriArg.fsPath).toBe(base.path);
   });

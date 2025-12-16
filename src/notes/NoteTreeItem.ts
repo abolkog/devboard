@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class NoteItem extends vscode.TreeItem {
+export class NoteTreeItem extends vscode.TreeItem {
   constructor(note: Note) {
     super(note.name, vscode.TreeItemCollapsibleState.None);
 

@@ -163,5 +163,15 @@
     "type": "git",
     "url": "https://github.com/abolkog/devboard.git",
     "license": "MIT"
-  }
+  },
+  "keywords": [
+    "vscode",
+    "extension",
+    "productivity",
+    "tasks",
+    "notes",
+    "todo",
+    "fixme",
+    "code-navigation"
+  ]
 }

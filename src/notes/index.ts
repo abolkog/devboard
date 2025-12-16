@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { NotesProvider } from './notesProvider';
-import { VIEW_IDS } from '../../constants';
-import { NoteItem } from './noteItem';
-import { handleAddNewNoteCommand, handleDeleteNoteCommand } from './notesCommandsHandler';
+import { NotesTreeProvider } from './NotesTreeProvider';
+import { VIEW_IDS } from '../constants';
+import { NoteTreeItem } from './NoteTreeItem';
 
 export function registerNotesView(context: vscode.ExtensionContext) {
-  const provider = new NotesProvider();
+  const provider = new NotesTreeProvider();
 
   const treeView = vscode.window.createTreeView(VIEW_IDS.NOTES, {
     treeDataProvider: provider,
@@ -22,10 +21,10 @@ export function registerNotesView(context: vscode.ExtensionContext) {
       await provider.refresh(true);
     }),
     vscode.commands.registerCommand('devboard.notes.add', async () => {
-      await handleAddNewNoteCommand(provider);
+      await provider.createNewNote();
     }),
-    vscode.commands.registerCommand('devboard.notes.delete', async (item: NoteItem) => {
-      await handleDeleteNoteCommand(provider, item);
+    vscode.commands.registerCommand('devboard.notes.delete', async (item: NoteTreeItem) => {
+      await provider.deleteNote(item);
     }),
   );
 }

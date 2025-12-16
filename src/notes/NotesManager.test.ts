@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { NotesManager } from './notesManager';
+import { NotesManager } from './NotesManager';
 
 jest.mock('fs');
 jest.mock('path');
