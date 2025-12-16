@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { registerTasksView } from './index';
-import { createMockExtensionContext } from '../../__mocks__/vscode';
+import { createMockExtensionContext } from '../__mocks__/vscode';
 
 describe('registerTasksView', () => {
   it('registers view and commands without error', () => {

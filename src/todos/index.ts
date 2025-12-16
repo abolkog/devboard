@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { TodoProvider } from './todoProvider';
-import { VIEW_IDS } from '../../constants';
+import { TodoTreeProvider } from './TodoTreeProvider';
+import { VIEW_IDS } from '../constants';
 
 export function registerTodoView(context: vscode.ExtensionContext) {
-  const provider = new TodoProvider();
+  const provider = new TodoTreeProvider();
 
   const treeView = vscode.window.createTreeView(VIEW_IDS.TODO, {
     treeDataProvider: provider,
@@ -16,6 +16,7 @@ export function registerTodoView(context: vscode.ExtensionContext) {
         await provider.refresh(true);
       }
     }),
+
     vscode.commands.registerCommand('devboard.todo.refresh', async () => {
       await provider.refresh(true);
     }),

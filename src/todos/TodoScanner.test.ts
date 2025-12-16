@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { TodoScanner } from './todoScanner';
+import { TodoScanner } from './TodoScanner';
 
 describe('TodoScanner', () => {
   let testDir: string;

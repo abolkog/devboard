@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
-import { TodoFileItem, TodoItem } from './todoItem';
-import { TodoScanner } from './todoScanner';
+import { TodoFileItem, TodoTreeItem } from './TodoTreeItem';
+import { TodoScanner } from './TodoScanner';
 
-export class TodoProvider implements vscode.TreeDataProvider<TodoFileItem | TodoItem> {
+export class TodoTreeProvider implements vscode.TreeDataProvider<TodoFileItem | TodoTreeItem> {
   private todos: CodeTodo[] = [];
   private grouped = new Map<string, { relativePath: string; todos: CodeTodo[] }>();
   private scanner = new TodoScanner();
   private loading = false;
   private initialized = false;
 
-  private _onDidChangeTreeData = new vscode.EventEmitter<TodoFileItem | TodoItem | undefined>();
+  private _onDidChangeTreeData = new vscode.EventEmitter<TodoFileItem | TodoTreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   async refresh(force = false): Promise<void> {
@@ -31,11 +31,11 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoFileItem | Todo
     }
   }
 
-  getTreeItem(element: TodoFileItem | TodoItem): vscode.TreeItem {
+  getTreeItem(element: TodoFileItem | TodoTreeItem): vscode.TreeItem {
     return element;
   }
 
-  async getChildren(element?: TodoFileItem | TodoItem): Promise<Array<TodoFileItem | TodoItem>> {
+  async getChildren(element?: TodoFileItem | TodoTreeItem): Promise<Array<TodoFileItem | TodoTreeItem>> {
     if (!this.initialized) {
       await this.refresh();
     }
@@ -56,7 +56,7 @@ export class TodoProvider implements vscode.TreeDataProvider<TodoFileItem | Todo
       return entry.todos
         .slice()
         .sort((a, b) => a.line - b.line)
-        .map(todo => new TodoItem(todo));
+        .map(todo => new TodoTreeItem(todo));
     }
 
     return [];

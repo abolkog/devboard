@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { TaskProvider } from './taskProvider';
-import { VIEW_IDS } from '../../constants';
-import { TaskItem } from './taskItem';
-import { handleAddNewTaskCommand, handleDeleteTaskCommand } from './tasksCommandsHandler';
+import { TaskTreeProvider } from './TaskTreeProvider';
+import { VIEW_IDS } from '../constants';
+import { TaskTreeItem } from './TaskTreeItem';
 
 export function registerTasksView(context: vscode.ExtensionContext) {
-  const provider = new TaskProvider(context);
+  const provider = new TaskTreeProvider(context);
 
   const treeView = vscode.window.createTreeView(VIEW_IDS.TASKS, {
     treeDataProvider: provider,
@@ -21,7 +20,7 @@ export function registerTasksView(context: vscode.ExtensionContext) {
 
     treeView.onDidChangeCheckboxState(async e => {
       for (const [item] of e.items) {
-        if (item instanceof TaskItem) {
+        if (item instanceof TaskTreeItem) {
           await provider.toggleTask(item.task.id);
         }
       }
@@ -31,12 +30,12 @@ export function registerTasksView(context: vscode.ExtensionContext) {
       await provider.refresh(true);
     }),
 
-    vscode.commands.registerCommand('devboard.tasks.add', async (item?: TaskItem) => {
-      handleAddNewTaskCommand(provider, item);
+    vscode.commands.registerCommand('devboard.tasks.add', async (item?: TaskTreeItem) => {
+      await provider.addTask(item);
     }),
 
-    vscode.commands.registerCommand('devboard.tasks.delete', async (item: TaskItem) => {
-      handleDeleteTaskCommand(provider, item);
+    vscode.commands.registerCommand('devboard.tasks.delete', async (item: TaskTreeItem) => {
+      await provider.deleteTask(item);
     }),
   );
 }

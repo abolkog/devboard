@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { registerTodoView } from './views/todos';
+import { registerTodoView } from './todos';
 import { registerNotesView } from './notes';
-import { registerTasksView } from './views/tasks';
+import { registerTasksView } from './tasks';
 
 export function activate(context: vscode.ExtensionContext) {
   registerTodoView(context);

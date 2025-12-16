@@ -1,52 +1,57 @@
-import { createMockExtensionContext } from '../../__mocks__/vscode';
-import { TaskItem } from './taskItem';
+import * as vscode from 'vscode';
+import { createMockExtensionContext } from '../__mocks__/vscode';
 
-import { TaskProvider } from './taskProvider';
+import { TaskTreeProvider } from './TaskTreeProvider';
+import { TaskTreeItem } from './TaskTreeItem';
 
 const mockTaskManager = {
   getTasks: jest.fn(),
   addTask: jest.fn(),
   deleteTask: jest.fn(),
   toggleTask: jest.fn(),
-} as any;
+};
+
+const mockTasks = [
+  { id: '1', title: 'Task 1', parentId: undefined, subtasks: [], completed: false, createdAt: 1 },
+  { id: '2', title: 'Task 2', parentId: undefined, subtasks: [], completed: false, createdAt: 2 },
+  { id: '3', title: 'Sub Task for 2', parentId: '2', subtasks: [], completed: false, createdAt: 2 },
+];
 
 describe('TaskProvider', () => {
-  let taskProvider: TaskProvider;
-  const mockTasks = [
-    { id: '1', title: 'Task 1', parentId: undefined, subtasks: [], completed: false, createdAt: 1 },
-    { id: '2', title: 'Task 2', parentId: 'parent', subtasks: [], completed: false, createdAt: 2 },
-  ];
+  let provider: TaskTreeProvider;
 
   beforeEach(() => {
-    taskProvider = new TaskProvider(createMockExtensionContext());
-    (taskProvider as any).taskManager = mockTaskManager;
+    jest.clearAllMocks();
+
+    provider = new TaskTreeProvider(createMockExtensionContext());
+    (provider as any).taskManager = mockTaskManager;
   });
 
   describe('refresh', () => {
     it('should load tasks on first refresh', async () => {
-      await taskProvider.refresh();
+      await provider.refresh();
       expect(mockTaskManager.getTasks).toHaveBeenCalled();
-      expect((taskProvider as any).initialized).toBe(true);
+      expect((provider as any).initialized).toBe(true);
     });
 
     it('should not reload tasks if already initialized without force', async () => {
-      await taskProvider.refresh();
+      await provider.refresh();
       mockTaskManager.getTasks.mockClear();
-      await taskProvider.refresh();
+      await provider.refresh();
       expect(mockTaskManager.getTasks).not.toHaveBeenCalled();
     });
 
     it('should reload tasks with force flag', async () => {
-      await taskProvider.refresh();
+      await provider.refresh();
       mockTaskManager.getTasks.mockClear();
-      await taskProvider.refresh(true);
+      await provider.refresh(true);
       expect(mockTaskManager.getTasks).toHaveBeenCalled();
     });
 
     it('should not reload if already loading', async () => {
       mockTaskManager.getTasks.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
-      taskProvider.refresh();
-      await taskProvider.refresh();
+      provider.refresh();
+      await provider.refresh();
 
       expect(mockTaskManager.getTasks).toHaveBeenCalledTimes(1);
     });
@@ -56,21 +61,21 @@ describe('TaskProvider', () => {
     it('should return root tasks without parentId', async () => {
       mockTaskManager.getTasks.mockResolvedValue(mockTasks);
 
-      const children = await taskProvider.getChildren();
+      const children = await provider.getChildren();
 
-      expect(children).toHaveLength(1);
+      expect(children).toHaveLength(2);
       expect(children[0].task.id).toBe('1');
     });
 
     it('should return subtasks when element is provided', async () => {
       const subtask = { id: '2', title: 'Subtask', parentId: '1', completed: false, createdAt: 1 };
       const mockTask = { ...mockTasks[0], subtasks: [subtask] };
-      const taskItem = new TaskItem(mockTask);
+      const taskItem = new TaskTreeItem(mockTask);
 
       mockTaskManager.getTasks.mockResolvedValue([mockTask]);
-      await taskProvider.refresh();
+      await provider.refresh();
 
-      const children = await taskProvider.getChildren(taskItem);
+      const children = await provider.getChildren(taskItem);
 
       expect(children).toHaveLength(1);
       expect(children[0].task.id).toBe('2');
@@ -79,46 +84,52 @@ describe('TaskProvider', () => {
 
   describe('addTask', () => {
     it('should add task and refresh', async () => {
-      await taskProvider.addTask('New Task');
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue('New Task');
+
+      await provider.addTask();
 
       expect(mockTaskManager.addTask).toHaveBeenCalledWith('New Task', undefined);
     });
 
     it('should add task with parent id', async () => {
-      await taskProvider.addTask('Subtask', 'parent-id');
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue('New Task');
 
-      expect(mockTaskManager.addTask).toHaveBeenCalledWith('Subtask', 'parent-id');
+      await provider.addTask({ task: { ...mockTasks[1], id: 'parent-id' } });
+
+      expect(mockTaskManager.addTask).toHaveBeenCalledWith('New Task', 'parent-id');
     });
   });
 
   describe('deleteTask', () => {
     it('should delete task and refresh', async () => {
-      await taskProvider.deleteTask('task-id');
+      (vscode.window.showWarningMessage as jest.Mock).mockResolvedValue('Delete');
+      await provider.deleteTask({ task: { ...mockTasks[0] } });
 
-      expect(mockTaskManager.deleteTask).toHaveBeenCalledWith('task-id');
+      expect(mockTaskManager.deleteTask).toHaveBeenCalledWith('1');
+    });
+
+    it('should not delete task when user cancels', async () => {
+      (vscode.window.showWarningMessage as jest.Mock).mockResolvedValue(undefined);
+
+      await provider.deleteTask({ task: { ...mockTasks[0] } });
+
+      expect(mockTaskManager.deleteTask).not.toHaveBeenCalled();
     });
   });
 
   describe('toggleTask', () => {
     it('should toggle task and refresh', async () => {
-      await taskProvider.toggleTask('task-id');
+      await provider.toggleTask('task-id');
 
       expect(mockTaskManager.toggleTask).toHaveBeenCalledWith('task-id');
     });
   });
 
-  describe('setAddingTask', () => {
-    it('should set adding task state', () => {
-      taskProvider.setAddingTask(true);
-      expect((taskProvider as any).isAddingTask).toBe(true);
-    });
-  });
-
   describe('getTreeItem', () => {
     it('should return the same tree item', () => {
-      const taskItem = new TaskItem(mockTasks[0]);
+      const taskItem = new TaskTreeItem(mockTasks[0]);
 
-      const result = taskProvider.getTreeItem(taskItem);
+      const result = provider.getTreeItem(taskItem);
 
       expect(result).toBe(taskItem);
     });

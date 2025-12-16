@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class TodoItem extends vscode.TreeItem {
+export class TodoTreeItem extends vscode.TreeItem {
   constructor(todo: CodeTodo) {
     super(todo.text, vscode.TreeItemCollapsibleState.None);
 

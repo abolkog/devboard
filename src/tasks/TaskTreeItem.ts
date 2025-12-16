@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class TaskItem extends vscode.TreeItem {
+export class TaskTreeItem extends vscode.TreeItem {
   constructor(public readonly task: Task) {
     super(
       task.title,

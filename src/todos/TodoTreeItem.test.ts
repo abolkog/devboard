@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { TodoItem } from './todoItem';
+import { TodoTreeItem } from './TodoTreeItem';
 
-describe('TodoItem', () => {
+describe('TodoTreeItem', () => {
   const base: CodeTodo = {
     id: '1',
     type: 'TODO',
@@ -12,32 +12,32 @@ describe('TodoItem', () => {
   };
 
   it('sets label and description', () => {
-    const item = new TodoItem(base);
+    const item = new TodoTreeItem(base);
     expect(item.label).toBe('implement feature');
     expect(item.description).toBe('TODO — line 11');
   });
 
   it('uses warning icon for FIXME', () => {
-    const item = new TodoItem({ ...base, type: 'FIXME' });
+    const item = new TodoTreeItem({ ...base, type: 'FIXME' });
     const icon = item.iconPath as vscode.ThemeIcon;
     expect(icon.id).toBe('warning');
   });
 
   it('uses checklist icon for TODO', () => {
-    const item = new TodoItem(base);
+    const item = new TodoTreeItem(base);
     const icon = item.iconPath as vscode.ThemeIcon;
     expect(icon.id).toBe('checklist');
   });
 
   it('builds tooltip with path and line', () => {
-    const item = new TodoItem(base);
+    const item = new TodoTreeItem(base);
     const tooltip = item.tooltip as vscode.MarkdownString;
     expect(tooltip.value).toContain('**TODO**');
     expect(tooltip.value).toContain('src/file.ts:11');
   });
 
   it('opens the file at the todo line', () => {
-    const item = new TodoItem(base);
+    const item = new TodoTreeItem(base);
     const [uriArg, options] = item.command?.arguments ?? [];
     expect(uriArg.fsPath).toBe(base.file);
     expect(options.selection.start.line).toBe(10);

@@ -2,21 +2,17 @@ import * as vscode from 'vscode';
 import { NotesTreeProvider } from './NotesTreeProvider';
 import { NoteTreeItem } from './NoteTreeItem';
 
-const mockGetNotes = jest.fn();
-const mockCreateNote = jest.fn();
-const mockDeleteNote = jest.fn();
+const mockNotesManager = {
+  getNotes: jest.fn(),
+  createNote: jest.fn(),
+  deleteNote: jest.fn(),
+};
 
-jest.mock('./NotesManager', () => {
-  return {
-    NotesManager: {
-      getInstance: jest.fn(() => ({
-        getNotes: mockGetNotes,
-        createNote: mockCreateNote,
-        deleteNote: mockDeleteNote,
-      })),
-    },
-  };
-});
+const mockNotes = [
+  { name: 'note 1', path: '/path/to/note1.md' },
+  { name: 'note 2', path: '/path/to/note2.md' },
+  { name: 'note 3', path: '/path/to/note3.md' },
+];
 
 describe('NotesProvider', () => {
   let provider: NotesTreeProvider;
@@ -24,56 +20,61 @@ describe('NotesProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     provider = new NotesTreeProvider();
+    (provider as any).notesManager = mockNotesManager;
   });
 
-  it('loads notes on first getChildren call', async () => {
-    mockGetNotes.mockResolvedValue([
-      { name: 'Note 1', path: '/note1.md' },
-      { name: 'Note 2', path: '/note2.md' },
-    ]);
+  describe('refresh', () => {
+    it('should load notes on first refresh', async () => {
+      await provider.refresh();
+      expect(mockNotesManager.getNotes).toHaveBeenCalled();
+      expect((provider as any).initialized).toBe(true);
+    });
 
-    const children = await provider.getChildren();
+    it('should not reload notes if already initialized without force', async () => {
+      await provider.refresh();
+      mockNotesManager.getNotes.mockClear();
+      await provider.refresh();
+      expect(mockNotesManager.getNotes).not.toHaveBeenCalled();
+    });
 
-    expect(mockGetNotes).toHaveBeenCalledTimes(1);
-    expect(children).toHaveLength(2);
-    expect(children[0]).toBeInstanceOf(NoteTreeItem);
+    it('should reload notes with force flag', async () => {
+      await provider.refresh();
+      mockNotesManager.getNotes.mockClear();
+      await provider.refresh(true);
+      expect(mockNotesManager.getNotes).toHaveBeenCalled();
+    });
+
+    it('should not reload if already loading', async () => {
+      mockNotesManager.getNotes.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+      provider.refresh();
+      await provider.refresh();
+
+      expect(mockNotesManager.getNotes).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('does not reload notes if already initialised', async () => {
-    mockGetNotes.mockResolvedValue([]);
+  describe('getChildren', () => {
+    it('should return notes', async () => {
+      mockNotesManager.getNotes.mockResolvedValue(mockNotes);
 
-    await provider.getChildren();
-    await provider.getChildren();
+      const children = await provider.getChildren();
 
-    expect(mockGetNotes).toHaveBeenCalledTimes(1);
+      expect(children).toHaveLength(3);
+      expect(children[0].label).toBe('note 1');
+    });
   });
 
-  it('forces refresh when force=true', async () => {
-    mockGetNotes.mockResolvedValueOnce([{ name: 'Note 1', path: '/note1.md' }]);
+  describe('getTreeItem', () => {
+    it('should return the same tree item', () => {
+      const taskItem = new NoteTreeItem(mockNotes[0]);
 
-    await provider.getChildren();
+      const result = provider.getTreeItem(taskItem);
 
-    mockGetNotes.mockResolvedValueOnce([{ name: 'Note 2', path: '/note2.md' }]);
-
-    await provider.refresh(true);
-    const children = await provider.getChildren();
-
-    expect(mockGetNotes).toHaveBeenCalledTimes(2);
-    expect(children[0].label).toBe('Note 2');
+      expect(result).toBe(taskItem);
+    });
   });
 
-  it('does nothing if refresh is called while loading', async () => {
-    mockGetNotes.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve([]), 50)));
-
-    const refresh1 = provider.refresh();
-    const refresh2 = provider.refresh();
-
-    await Promise.all([refresh1, refresh2]);
-
-    expect(mockGetNotes).toHaveBeenCalledTimes(1);
-  });
-
-  describe('create note', () => {
+  describe('createNewNote', () => {
     it('should reject empty title input', async () => {
       (vscode.window.showInputBox as jest.Mock).mockImplementation(({ validateInput }) => {
         return Promise.resolve(validateInput('') === undefined ? 'Valid' : undefined);
@@ -81,7 +82,7 @@ describe('NotesProvider', () => {
 
       await provider.createNewNote();
 
-      expect(mockCreateNote).not.toHaveBeenCalled();
+      expect(mockNotesManager.createNote).not.toHaveBeenCalled();
     });
 
     it('should create a note when user provides valid title', async () => {
@@ -89,8 +90,8 @@ describe('NotesProvider', () => {
 
       await provider.createNewNote();
 
-      expect(mockGetNotes).toHaveBeenCalledTimes(1);
-      expect(mockCreateNote).toHaveBeenCalledTimes(1);
+      expect(mockNotesManager.getNotes).toHaveBeenCalledTimes(1);
+      expect(mockNotesManager.createNote).toHaveBeenCalledTimes(1);
     });
 
     it('should not create a note when user cancels input', async () => {
@@ -98,13 +99,13 @@ describe('NotesProvider', () => {
 
       await provider.createNewNote();
 
-      expect(mockCreateNote).not.toHaveBeenCalled();
+      expect(mockNotesManager.createNote).not.toHaveBeenCalled();
     });
 
     it('should show error message on create failure', async () => {
       (vscode.window.showInputBox as jest.Mock).mockResolvedValue('meeting notes');
 
-      (mockCreateNote as jest.Mock).mockImplementation(() => {
+      mockNotesManager.createNote.mockImplementation(() => {
         throw new Error('Create failed');
       });
 
@@ -114,7 +115,7 @@ describe('NotesProvider', () => {
     });
   });
 
-  describe('delete note', () => {
+  describe('deleteNote', () => {
     it('should delete note when user confirms', async () => {
       const mockItem = {
         label: 'Test Note',
@@ -124,7 +125,7 @@ describe('NotesProvider', () => {
 
       await provider.deleteNote(mockItem);
 
-      expect(mockDeleteNote).toHaveBeenCalledWith('/path/to/note.md');
+      expect(mockNotesManager.deleteNote).toHaveBeenCalledWith('/path/to/note.md');
     });
 
     it('should not delete note when user cancels', async () => {
@@ -136,7 +137,7 @@ describe('NotesProvider', () => {
 
       await provider.deleteNote(mockItem);
 
-      expect(mockDeleteNote).not.toHaveBeenCalled();
+      expect(mockNotesManager.deleteNote).not.toHaveBeenCalled();
     });
 
     it('should return early if item has no file path', async () => {
@@ -144,7 +145,7 @@ describe('NotesProvider', () => {
 
       await provider.deleteNote(mockItem);
 
-      expect(mockDeleteNote).not.toHaveBeenCalled();
+      expect(mockNotesManager.deleteNote).not.toHaveBeenCalled();
     });
 
     it('should show error message on delete failure', async () => {
@@ -153,7 +154,7 @@ describe('NotesProvider', () => {
         command: { arguments: [{ fsPath: '/path/to/note.md' }] },
       } as any;
       (vscode.window.showWarningMessage as jest.Mock).mockResolvedValue('Delete');
-      (mockDeleteNote as jest.Mock).mockImplementation(() => {
+      mockNotesManager.deleteNote.mockImplementation(() => {
         throw new Error('Delete failed');
       });
 

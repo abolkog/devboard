@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import { registerTodoView } from './index';
 
-// jest.mock('vscode');
-
 describe('registerTodoView', () => {
   it('registers view and commands without error', () => {
     const mockContext: Partial<vscode.ExtensionContext> = { subscriptions: [] };
