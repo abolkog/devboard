@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/abolkog/devboard/compare/v1.0.0...v1.0.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* **CICD:** debug publish step not triggered on new release ([1f933b3](https://github.com/abolkog/devboard/commit/1f933b39bb74fc03e6658d707b4b51fcf7f93240))
+
 # 1.0.0 (2026-02-18)
 
 
