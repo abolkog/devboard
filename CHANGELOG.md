@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/abolkog/devhq/compare/v1.0.2...v1.0.3) (2026-02-19)
+
+
+### Bug Fixes
+
+* **Tasks:** fix issue where user could not add subtasks ([eb87c62](https://github.com/abolkog/devhq/commit/eb87c6207720fb7187ca4105e1667594275a2604))
+
 ## [1.0.2](https://github.com/abolkog/devboard/compare/v1.0.1...v1.0.2) (2026-02-19)
 
 

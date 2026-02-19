@@ -2,7 +2,7 @@
   "name": "devhq",
   "displayName": "DevHQ",
   "description": "A developer-focused VS Code extension that brings together tasks, notes, and a TODO code tree all in one clean workspace panel",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "abolkog",
   "engines": {
     "vscode": "^1.107.0",
