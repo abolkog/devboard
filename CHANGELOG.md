@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/abolkog/devhq/compare/v1.0.3...v1.1.0) (2026-02-26)
+
+
+### Bug Fixes
+
+* add missing extension icon ([a917a86](https://github.com/abolkog/devhq/commit/a917a86121247040e4a176ad773f68d7a33503ab))
+
+
+### Features
+
+* **notes:** enhance notes module ([b882e8f](https://github.com/abolkog/devhq/commit/b882e8fe56150e462d408b1d83289fa6b060f426))
+* **tasks:** add clear completed tasks command ([0662e2a](https://github.com/abolkog/devhq/commit/0662e2aeb704bbd3661543362368999e074f39b1))
+* **todos:** add configurable TODO scanner exclusions ([72ab5f6](https://github.com/abolkog/devhq/commit/72ab5f66b305034db81daf4c60817641fee74b5c))
+
 ## [1.0.3](https://github.com/abolkog/devhq/compare/v1.0.2...v1.0.3) (2026-02-19)
 
 
