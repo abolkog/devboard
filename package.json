@@ -4,6 +4,7 @@
   "description": "A developer-focused VS Code extension that brings together tasks, notes, and a TODO code tree all in one clean workspace panel",
   "version": "1.0.3",
   "publisher": "abolkog",
+  "icon": "media/devhq-logo.png",
   "engines": {
     "vscode": "^1.107.0",
     "node": ">=20",
