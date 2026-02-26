@@ -56,14 +56,24 @@ Press **F5** to launch the VS Code Extension Host.
 
 ## 🧩 Commands
 
-| Command                  | Description                       |
-| ------------------------ | --------------------------------- |
-| **DevHQ: Refresh Task**  | Refresh tasks list                |
-| **DevHQ: Refresh Notes** | Refresh notes list                |
-| **DevHQ: Refresh Todos** | Rescan code and refresh todo list |
-| **DevHQ: New Task**      | Create new task                   |
-| **DevHQ: New Note**      | Create new note                   |
-| **DevHQ: Clear Notes**   | Clears all notes                  |
+| Command                          | Description                       |
+| -------------------------------- | --------------------------------- |
+| **DevHQ: Refresh Tasks**         | Refresh tasks list                |
+| **DevHQ: Refresh Notes**         | Refresh notes list                |
+| **DevHQ: Refresh Todos**         | Rescan code and refresh todo list |
+| **DevHQ: New Task**              | Create new task                   |
+| **DevHQ: New Note**              | Create new note                   |
+| **DevHQ: Open Notes Folder**     | Open notes folder in OS           |
+| **DevHQ: Rename Note**           | Rename selected note              |
+| **DevHQ: Clear Completed Tasks** | Remove completed tasks            |
+
+## ⚙️ Settings
+
+| Setting                        | Description                                                        |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `devhq.notes.folder`           | Absolute notes folder path (defaults to `~/Documents/DevHQ-Notes`) |
+| `devhq.todo.excludeFolders`    | Additional folder names to ignore when scanning TODO/FIXME         |
+| `devhq.todo.excludeExtensions` | File extensions to skip during TODO/FIXME scanning                 |
 
 ---
 

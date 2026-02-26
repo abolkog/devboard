@@ -91,7 +91,7 @@ export class NotesTreeProvider implements vscode.TreeDataProvider<NoteTreeItem> 
 
     const newTitle = await vscode.window.showInputBox({
       prompt: 'Rename note',
-      value: item.label,
+      value: (item?.label as string) ?? '',
       validateInput: value => (!value || !value.trim() ? 'Title is required' : undefined),
     });
 
