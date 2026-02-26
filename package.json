@@ -135,6 +135,27 @@
           "group": "inline"
         }
       ]
+    },
+    "configuration": {
+      "title": "DevHQ",
+      "properties": {
+        "devhq.todo.excludeFolders": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional folder names to ignore when scanning TODO/FIXME comments."
+        },
+        "devhq.todo.excludeExtensions": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "File extensions to skip when scanning TODO/FIXME comments (for example: [\".js\", \".ts\"])."
+        }
+      }
     }
   },
   "scripts": {

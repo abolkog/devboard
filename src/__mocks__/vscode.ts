@@ -77,6 +77,9 @@ export const window = {
 export const workspace = {
   workspaceFolders: [],
   onDidSaveTextDocument: jest.fn(),
+  getConfiguration: jest.fn(() => ({
+    get: jest.fn((_key: string, defaultValue: unknown) => defaultValue),
+  })),
   createFileSystemWatcher: jest.fn(() => ({
     onDidChange: jest.fn(),
     onDidCreate: jest.fn(),
@@ -88,6 +91,7 @@ export const workspace = {
 
 export const commands = {
   registerCommand: jest.fn(),
+  executeCommand: jest.fn(),
 };
 
 export const extensions = {
