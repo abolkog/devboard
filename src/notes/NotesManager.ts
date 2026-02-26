@@ -3,8 +3,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class NotesManager {
-  private notesDir: string;
-
   private static instance: NotesManager;
 
   public static getInstance() {
@@ -16,25 +14,36 @@ export class NotesManager {
   }
 
   private constructor() {
-    const homeDir = require('os').homedir();
-    this.notesDir = path.join(homeDir, 'Documents', 'DevHQ-Notes');
     this.ensureNotesDir();
   }
 
+  private resolveNotesDir(): string {
+    const configured = vscode.workspace.getConfiguration('devhq.notes').get<string>('folder', '').trim();
+
+    if (configured) {
+      return path.resolve(configured);
+    }
+
+    const homeDir = require('os').homedir();
+    return path.join(homeDir, 'Documents', 'DevHQ-Notes');
+  }
+
   private ensureNotesDir() {
-    if (!fs.existsSync(this.notesDir)) {
-      fs.mkdirSync(this.notesDir, { recursive: true });
+    const notesDir = this.resolveNotesDir();
+    if (!fs.existsSync(notesDir)) {
+      fs.mkdirSync(notesDir, { recursive: true });
     }
   }
 
   getNotes(): Note[] {
     try {
-      const files = fs.readdirSync(this.notesDir);
+      const notesDir = this.resolveNotesDir();
+      const files = fs.readdirSync(notesDir);
       return files
         .filter(f => f.endsWith('.md'))
         .map(f => ({
           name: f.replace('.md', ''),
-          path: path.join(this.notesDir, f),
+          path: path.join(notesDir, f),
         }));
     } catch {
       return [];
@@ -47,12 +56,13 @@ export class NotesManager {
   }
 
   async createNote(title: string): Promise<void> {
+    const notesDir = this.resolveNotesDir();
     const cleanTitle = title
       .trim()
       .replace(/[\\/:"*?<>|]+/g, '')
       .replace(/\s+/g, ' ');
 
-    const filePath = path.join(this.notesDir, `${cleanTitle}.md`);
+    const filePath = path.join(notesDir, `${cleanTitle}.md`);
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, `# ${title}\n\n`);
     }
@@ -63,7 +73,19 @@ export class NotesManager {
     fs.unlinkSync(filePath);
   }
 
+  renameNote(filePath: string, newTitle: string) {
+    const cleanTitle = newTitle
+      .trim()
+      .replace(/[\\/:"*?<>|]+/g, '')
+      .replace(/\s+/g, ' ');
+
+    const targetPath = path.join(this.resolveNotesDir(), `${cleanTitle}.md`);
+    fs.renameSync(filePath, targetPath);
+
+    return targetPath;
+  }
+
   getNotesDir(): string {
-    return this.notesDir;
+    return this.resolveNotesDir();
   }
 }

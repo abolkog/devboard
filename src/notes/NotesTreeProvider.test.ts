@@ -2,10 +2,15 @@ import * as vscode from 'vscode';
 import { NotesTreeProvider } from './NotesTreeProvider';
 import { NoteTreeItem } from './NoteTreeItem';
 
+jest.mock('vscode');
+
 const mockNotesManager = {
   getNotes: jest.fn(),
   createNote: jest.fn(),
   deleteNote: jest.fn(),
+  renameNote: jest.fn(),
+  openNote: jest.fn(),
+  getNotesDir: jest.fn(),
 };
 
 const mockNotes = [
@@ -19,6 +24,10 @@ describe('NotesProvider', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (vscode.workspace as any).getConfiguration = jest.fn(() => ({
+      get: jest.fn((_key: string, defaultValue: unknown) => defaultValue),
+    }));
+    (vscode.commands as any).executeCommand = jest.fn();
     provider = new NotesTreeProvider();
     (provider as any).notesManager = mockNotesManager;
   });
@@ -161,6 +170,44 @@ describe('NotesProvider', () => {
       await provider.deleteNote(mockItem);
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('Failed to delete note');
+    });
+  });
+
+  describe('renameNote', () => {
+    it('should rename and open note when user provides a new title', async () => {
+      const mockItem = {
+        label: 'Old Name',
+        command: { arguments: [{ fsPath: '/path/to/old.md' }] },
+      } as any;
+
+      (vscode.window.showInputBox as jest.Mock).mockResolvedValue('New Name');
+      mockNotesManager.renameNote.mockReturnValue('/path/to/New Name.md');
+
+      await provider.renameNote(mockItem);
+
+      expect(mockNotesManager.renameNote).toHaveBeenCalledWith('/path/to/old.md', 'New Name');
+      expect(mockNotesManager.openNote).toHaveBeenCalledWith('/path/to/New Name.md');
+    });
+
+    it('returns early when selected item has no path', async () => {
+      const mockItem = {
+        label: 'Old Name',
+        command: {},
+      } as any;
+
+      await provider.renameNote(mockItem);
+
+      expect(mockNotesManager.renameNote).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('openNotesFolder', () => {
+    it('opens notes folder in OS', async () => {
+      mockNotesManager.getNotesDir.mockReturnValue('/notes/path');
+
+      await provider.openNotesFolder();
+
+      expect(vscode.commands.executeCommand).toHaveBeenCalledWith('revealFileInOS', { fsPath: '/notes/path' });
     });
   });
 });

@@ -23,6 +23,12 @@ export function registerNotesView(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('devhq.notes.add', async () => {
       await provider.createNewNote();
     }),
+    vscode.commands.registerCommand('devhq.notes.openFolder', async () => {
+      await provider.openNotesFolder();
+    }),
+    vscode.commands.registerCommand('devhq.notes.rename', async (item: NoteTreeItem) => {
+      await provider.renameNote(item);
+    }),
     vscode.commands.registerCommand('devhq.notes.delete', async (item: NoteTreeItem) => {
       await provider.deleteNote(item);
     }),

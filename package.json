@@ -109,6 +109,11 @@
           "group": "navigation@1"
         },
         {
+          "command": "devhq.notes.openFolder",
+          "when": "view == notesView",
+          "group": "navigation@2"
+        },
+        {
           "command": "devhq.tasks.refresh",
           "when": "view == tasksView",
           "group": "navigation@1"
@@ -120,6 +125,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "devhq.notes.rename",
+          "when": "view == notesView && viewItem == devhq.note",
+          "group": "inline"
+        },
         {
           "command": "devhq.notes.delete",
           "when": "view == notesView && viewItem == devhq.note",
@@ -140,6 +150,11 @@
     "configuration": {
       "title": "DevHQ",
       "properties": {
+        "devhq.notes.folder": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the notes folder. Leave empty to use ~/Documents/DevHQ-Notes."
+        },
         "devhq.todo.excludeFolders": {
           "type": "array",
           "default": [],

@@ -14,6 +14,8 @@ describe('registerNotesView', () => {
     mockProvider = {
       createNewNote: jest.fn().mockResolvedValue(undefined),
       deleteNote: jest.fn().mockResolvedValue(undefined),
+      renameNote: jest.fn().mockResolvedValue(undefined),
+      openNotesFolder: jest.fn().mockResolvedValue(undefined),
       refresh: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -41,6 +43,18 @@ describe('registerNotesView', () => {
       registerNotesView(createMockExtensionContext());
 
       expect(vscode.commands.registerCommand).toHaveBeenCalledWith('devhq.notes.add', expect.any(Function));
+    });
+
+    it('registers devhq.notes.openFolder command', () => {
+      registerNotesView(createMockExtensionContext());
+
+      expect(vscode.commands.registerCommand).toHaveBeenCalledWith('devhq.notes.openFolder', expect.any(Function));
+    });
+
+    it('registers devhq.notes.rename command', () => {
+      registerNotesView(createMockExtensionContext());
+
+      expect(vscode.commands.registerCommand).toHaveBeenCalledWith('devhq.notes.rename', expect.any(Function));
     });
   });
 
@@ -91,6 +105,38 @@ describe('registerNotesView', () => {
       await deleteCallback();
 
       expect(mockProvider.deleteNote).toHaveBeenCalled();
+    });
+
+    it('calls provider openNotesFolder when open folder command is invoked', async () => {
+      const mockContext = createMockExtensionContext();
+      registerNotesView(mockContext);
+
+      const openFolderCommandCall = (vscode.commands.registerCommand as jest.Mock).mock.calls.find(
+        call => call[0] === 'devhq.notes.openFolder',
+      );
+      expect(openFolderCommandCall).toBeDefined();
+
+      const openFolderCallback = openFolderCommandCall[1];
+
+      await openFolderCallback();
+
+      expect(mockProvider.openNotesFolder).toHaveBeenCalled();
+    });
+
+    it('calls provider renameNote when rename command is invoked', async () => {
+      const mockContext = createMockExtensionContext();
+      registerNotesView(mockContext);
+
+      const renameCommandCall = (vscode.commands.registerCommand as jest.Mock).mock.calls.find(
+        call => call[0] === 'devhq.notes.rename',
+      );
+      expect(renameCommandCall).toBeDefined();
+
+      const renameCallback = renameCommandCall[1];
+
+      await renameCallback();
+
+      expect(mockProvider.renameNote).toHaveBeenCalled();
     });
   });
 });

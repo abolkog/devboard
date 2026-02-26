@@ -3,12 +3,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { NotesManager } from './NotesManager';
 
+jest.mock('vscode');
+
 jest.mock('fs');
 jest.mock('path');
 jest.mock('os');
 
 const mockHomeDir = '/mock/home';
 const mockNotesDir = '/mock/home/Documents/DevHQ-Notes';
+const mockConfiguredNotesDir = '/custom/notes';
 
 describe('NotesManager', () => {
   let notesManager: NotesManager;
@@ -18,7 +21,12 @@ describe('NotesManager', () => {
 
     require('os').homedir = jest.fn(() => mockHomeDir);
     (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
+    (path.resolve as jest.Mock).mockImplementation((value: string) => value);
     (fs.existsSync as jest.Mock).mockReturnValue(true);
+    (vscode.workspace as any).getConfiguration = jest.fn();
+    (vscode.workspace.getConfiguration as jest.Mock).mockReturnValue({
+      get: jest.fn((_key: string, defaultValue: unknown) => defaultValue),
+    });
 
     notesManager = NotesManager.getInstance();
   });
@@ -67,6 +75,23 @@ describe('NotesManager', () => {
       const notes = notesManager.getNotes();
 
       expect(notes).toEqual([]);
+    });
+
+    it('uses configured notes directory when provided', () => {
+      (vscode.workspace.getConfiguration as jest.Mock).mockReturnValue({
+        get: jest.fn((key: string, defaultValue: unknown) => {
+          if (key === 'folder') {
+            return mockConfiguredNotesDir;
+          }
+
+          return defaultValue;
+        }),
+      });
+      (fs.readdirSync as jest.Mock).mockReturnValue(['note1.md']);
+
+      const notes = notesManager.getNotes();
+
+      expect(notes).toEqual([{ name: 'note1', path: `${mockConfiguredNotesDir}/note1.md` }]);
     });
   });
 
@@ -135,9 +160,31 @@ describe('NotesManager', () => {
     });
   });
 
+  describe('renameNote', () => {
+    it('should rename note in default notes directory', () => {
+      notesManager.renameNote('/old/path/old.md', 'New Name');
+
+      expect(fs.renameSync).toHaveBeenCalledWith('/old/path/old.md', `${mockNotesDir}/New Name.md`);
+    });
+  });
+
   describe('getNotesDir', () => {
     it('should return notes directory path', () => {
       expect(notesManager.getNotesDir()).toBe(mockNotesDir);
+    });
+
+    it('should return configured notes directory path', () => {
+      (vscode.workspace.getConfiguration as jest.Mock).mockReturnValue({
+        get: jest.fn((key: string, defaultValue: unknown) => {
+          if (key === 'folder') {
+            return mockConfiguredNotesDir;
+          }
+
+          return defaultValue;
+        }),
+      });
+
+      expect(notesManager.getNotesDir()).toBe(mockConfiguredNotesDir);
     });
   });
 });

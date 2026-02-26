@@ -82,4 +82,39 @@ export class NotesTreeProvider implements vscode.TreeDataProvider<NoteTreeItem> 
       vscode.window.showErrorMessage('Failed to delete note');
     }
   }
+
+  async renameNote(item: NoteTreeItem) {
+    const filePath = item.command?.arguments?.[0]?.fsPath as string | undefined;
+    if (!filePath) {
+      return;
+    }
+
+    const newTitle = await vscode.window.showInputBox({
+      prompt: 'Rename note',
+      value: item.label,
+      validateInput: value => (!value || !value.trim() ? 'Title is required' : undefined),
+    });
+
+    if (!newTitle || newTitle === item.label) {
+      return;
+    }
+
+    try {
+      const targetPath = this.notesManager.renameNote(filePath, newTitle);
+      await this.refresh(true);
+      await this.notesManager.openNote(targetPath);
+    } catch {
+      vscode.window.showErrorMessage('Failed to rename note');
+    }
+  }
+
+  async openNotesFolder() {
+    const notesDir = this.notesManager.getNotesDir();
+
+    try {
+      await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(notesDir));
+    } catch {
+      vscode.window.showErrorMessage('Failed to open notes folder');
+    }
+  }
 }
